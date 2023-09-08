@@ -1,9 +1,13 @@
 const express = require("express");
+var cors = require("cors");
 const app = express();
+
+app.use(express.json());
+app.use(cors());
 
 const PORT = 3001;
 
-const workouts = [
+let workouts = [
   {
     date: "28/8/2023",
     exercises: [
@@ -146,6 +150,34 @@ app.get("/workouts/:id", (req, res) => {
   const id = req.params["id"];
   const workout = workouts.find((workout) => workout.id == id);
   res.json(workout);
+});
+
+app.post("/workouts", (req, res) => {
+  const workout = req.body;
+  res.json(workout);
+});
+
+app.delete("/workouts/:id", (req, res) => {
+  const id = Number(req.params.id);
+  workouts = workouts.filter((workout) => workout.id !== id);
+  res.status(204).end();
+});
+
+app.delete("/workouts/:workout_id/exercises/:exercise_id", (req, res) => {
+  const workout_id = Number(req.params.workout_id);
+  const exercise_id = req.params.exercise_id;
+
+  const workout = workouts.find((workout) => workout.id === workout_id);
+
+  if (!workout) {
+    return res.status(404).json({ error: "Workout not found" });
+  }
+
+  workout.exercises = workout.exercises.filter(
+    (exercise) => exercise.exercise_id !== exercise_id
+  );
+
+  res.status(204).end();
 });
 
 app.listen(PORT, () => {
