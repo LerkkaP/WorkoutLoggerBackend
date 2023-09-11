@@ -1,8 +1,9 @@
-const workouts = require("../data");
+//const workouts = require("../data");//
+const Workout = require("../models/Workout");
 
 // get all workouts
 const getWorkouts = (req, res) => {
-  res.json(workouts);
+  Workout.find({}).then((workout) => res.json(workout));
 };
 
 // get a specific workout
