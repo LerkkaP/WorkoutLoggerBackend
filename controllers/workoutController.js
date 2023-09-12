@@ -33,37 +33,54 @@ const createWorkout = async (req, res) => {
 };
 
 // delete a specific workout
-const deleteWorkout = (req, res) => {
-  const id = Number(req.params.id);
-  workouts = workouts.filter((workout) => workout.id !== id);
-  res.status(204).end();
+const deleteWorkout = async (req, res) => {
+  try {
+    const id = req.params.id;
+    await Workout.deleteOne({
+      _id: id,
+    });
+    res.status(204).json();
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };
 
 // add a new exercise to a specific workout
-const addExerciseToWorkout = (req, res) => {
-  const id = Number(req.params.id);
-  const exerciseObject = req.body;
-
-  const workout = workouts.find((workout) => workout.id === id);
-
-  if (!workout) {
-    return res.status(404).json({ error: "Workout not found" });
+const addExerciseToWorkout = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const exerciseObject = req.body;
+    console.log(exerciseObject);
+    const updatedWorkout = await Workout.findOneAndUpdate(
+      { _id: id },
+      { $push: { exercises: exerciseObject } }
+    );
+    res.status(201).json(updatedWorkout);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
-
-  workout.exercises.push(exerciseObject);
-
-  res.json(workout);
 };
 
 // add a new set to a specific exercise inside a specific workout
-const addSetToExercise = (req, res) => {
-  const workout_id = Number(req.params.workout_id);
+const addSetToExercise = async (req, res) => {
+  const workout_id = req.params.workout_id;
   const exercise_id = req.params.exercise_id;
   const { reps, load } = req.body;
 
   console.log(reps, load);
 
-  const workout = workouts.find((workout) => workout.id === workout_id);
+  const updatedExercise = await Workout.findOneAndUpdate(
+    { _id: workout_id, "exercises._id": exercise_id },
+    {
+      $push: {
+        "exercises.$.sets": { sets: { reps, load } },
+      },
+    }
+  );
+
+  res.status(201).json(updatedExercise);
+
+  /*const workout = workouts.find((workout) => workout.id === workout_id);
 
   if (!workout) {
     return res.status(404).json({ error: "Workout not found" });
@@ -82,7 +99,7 @@ const addSetToExercise = (req, res) => {
 
   exercise.sets.push(newSet);
 
-  res.json(workout);
+  res.json(workout);*/
 };
 
 // delete a specific exercise inside a specific workout
