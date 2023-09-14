@@ -50,11 +50,12 @@ const addExerciseToWorkout = async (req, res) => {
   try {
     const id = req.params.id;
     const exerciseObject = req.body;
-    console.log(exerciseObject);
     const updatedWorkout = await Workout.findOneAndUpdate(
       { _id: id },
-      { $push: { exercises: exerciseObject } }
+      { $push: { exercises: exerciseObject } },
+      { new: true }
     );
+
     res.status(201).json(updatedWorkout);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -85,20 +86,22 @@ const deleteExerciseFromWorkout = async (req, res) => {
   try {
     const workout_id = req.params.workout_id;
     const exercise_id = req.params.exercise_id;
-
-    await Workout.findOneAndUpdate(
-      { _id: workout_id },
-      { $pull: { exercises: { _id: exercise_id } } }
-    );
-
-    // look into this !!! //
-
-    if (Workout.exercises.length === 0) {
-      await Workout.findByIdAndDelete(workout_id);
+    const workout = await Workout.findById(workout_id);
+    if (workout.exercises.length === 1) {
+      await Workout.deleteOne({
+        _id: workout_id,
+      });
+      res.status(202).json();
+    } else {
+      const updatedWorkout = await Workout.findOneAndUpdate(
+        { _id: workout_id },
+        { $pull: { exercises: { _id: exercise_id } } },
+        { new: true }
+      );
+      res.status(204).json(updatedWorkout);
     }
-    res.status(200).json();
   } catch (error) {
-    res.json(500).json({ error: error.message });
+    res.status(500).json({ error: error.message });
   }
 };
 
