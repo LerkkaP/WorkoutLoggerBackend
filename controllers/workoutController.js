@@ -111,6 +111,7 @@ const deleteSetFromExercise = async (req, res) => {
     const workout_id = req.params.workout_id;
     const exercise_id = req.params.exercise_id;
     const set_id = req.params.set_id;
+    console.log(set_id);
     const updatedSets = await Workout.findOneAndUpdate(
       { _id: workout_id, "exercises._id": exercise_id },
       { $pull: { "exercises.$.sets": { _id: set_id } } },
