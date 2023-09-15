@@ -21,5 +21,9 @@
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "globalTeardown": "./test-teardown.js"
   }
 }
