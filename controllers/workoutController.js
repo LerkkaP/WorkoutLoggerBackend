@@ -12,7 +12,7 @@ const getWorkoutById = async (req, res) => {
 
   try {
     const workout = await Workout.findById(id);
-    res.json(workout);
+    res.status(200).json(workout);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
