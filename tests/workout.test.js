@@ -65,6 +65,40 @@ describe("Workouts API", () => {
   });
 });
 
+describe("Exercises API", () => {
+  describe("POST /:id/exercises", () => {
+    test("should add an exercise to a workout", async () => {
+      const workoutRes = await request(app).post("/workouts").send({
+        date: "18/9/2023",
+        exercises: [],
+      });
+      const workoutId = workoutRes.body.id;
+
+      const exerciseData = {
+        name: "Squat",
+        sets: [
+          { reps: 5, kg: 50 },
+          { reps: 5, kg: 50 },
+          { reps: 5, kg: 50 },
+        ],
+      };
+      const response = await request(app)
+        .post(`/workouts/${workoutId}/exercises`)
+        .send(exerciseData);
+
+      expect(response.statusCode).toBe(201);
+      expect(response.body).toHaveProperty("id");
+
+      const updatedWorkout = await Workout.findById(workoutId);
+
+      const initialExerciseCount = workoutRes.body.exercises.length;
+      const finalExerciseCount = updatedWorkout.exercises.length;
+
+      expect(finalExerciseCount).toBe(initialExerciseCount + 1);
+    });
+  });
+});
+
 afterAll(async () => {
   await mongoose.connection.close();
 });
