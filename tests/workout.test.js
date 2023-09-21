@@ -28,6 +28,21 @@ describe("Workouts API", () => {
     });
   });
 
+  describe("GET /:id", () => {
+    test("should return a specific workout", async () => {
+      const workoutResponse = await request(app).get("/workouts");
+      const id = workoutResponse.body[0].id
+
+      const response = await request(app)
+        .get(`/workouts/${id}`)
+        .expect(200)
+
+      expect(response.body.date).toBe("28/8/2023")
+      expect(response.body.id).toBe(id)
+
+    })
+  })
+
   describe("POST /", () => {
     test("should create a workout", async () => {
       const res = await request(app)
@@ -97,6 +112,28 @@ describe("Exercises API", () => {
       expect(finalExerciseCount).toBe(initialExerciseCount + 1);
     });
   });
+
+  describe("PUT /:workout_id/exercises/:exercise_id/sets", () => {
+    test("should add a set to a specific exercise", async () => {
+      const workoutResponse = await request(app).get("/workouts");
+      const workout_id = workoutResponse.body[0].id
+      const exercise_id = workoutResponse.body[0].exercises[0].id
+
+      const setObject = {
+        reps: 10,
+        kg: 80
+      }
+
+      const response = await request(app)
+        .put(`/workouts/${workout_id}/exercises/${exercise_id}/sets`)
+        .send(setObject)
+        .expect(200)
+      
+      expect(response.body.exercises[0].sets).toHaveLength(4)
+      console.log(response.body.exercises[0].sets)
+      // hox! kg is not added!
+    })
+  })
 });
 
 afterAll(async () => {
