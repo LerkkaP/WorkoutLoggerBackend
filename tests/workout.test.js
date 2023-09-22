@@ -136,17 +136,52 @@ describe("Exercises API", () => {
   })
 
   describe("DELETE /:workout_id/exercises/:exercise_id", () => {
-    test("should delete an exercise from a workout", async () => {
+    describe("case with multiple exercises", () => {
+      test("should delete an exercise from a workout", async () => {
 
-      const workoutResponse = await request(app).get("/workouts");
-      const workout_id = workoutResponse.body[0].id
-      const exercise_id = workoutResponse.body[0].exercises[0].id
+        const workoutResponse = await request(app).get("/workouts");
+        const workout_id = workoutResponse.body[0].id
+        const exercise_id = workoutResponse.body[0].exercises[0].id
+  
+        await request(app)
+          .delete(`/workouts/${workout_id}/exercises/${exercise_id}`)
+          .expect(204)
 
-      const response = await request(app)
-        .delete(`/workouts/${workout_id}/exercises/${exercise_id}`)
-        .expect(204)
-      expect(response.body).toStrictEqual({})
+        const updatedWorkoutResponse = await request(app)
+          .get(`/workouts/${workout_id}`)
+
+        const updatedWorkout = updatedWorkoutResponse.body.exercises.find(
+          (exercise) => exercise.id === exercise_id
+        );
+          
+        expect(updatedWorkout).toBeUndefined();
+        expect(updatedWorkoutResponse.body.exercises.length).toBe(2)
+      })
     })
+
+  describe("case with an only one exercise", () => {
+    test("should delete the whole workout", async () => {
+      const workoutResponse = await request(app).get("/workouts");
+
+      const workout_id_1 = workoutResponse.body[0].id
+      const exercise_id_1 = workoutResponse.body[0].exercises[0].id
+
+      const workout_id_2 = workoutResponse.body[1].id
+      const exercise_id_2 = workoutResponse.body[1].exercises[1].id
+
+      await request(app)
+        .delete(`/workouts/${workout_id_1}/exercises/${exercise_id_1}`)
+        .expect(204)
+
+      await request(app)
+        .delete(`/workouts/${workout_id_2}/exercises/${exercise_id_2}`)
+        .expect(204)
+
+      const updatedWorkoutResponse = await request(app).get(`/workouts/${workout_id}`);
+      // fine tuning
+      
+    })
+  })
   })
 
   describe("DELETE /:workout_id/exercises/:exercise_id/sets/:set_id", () => {
@@ -156,11 +191,19 @@ describe("Exercises API", () => {
       const workout_id = workoutResponse.body[0].id
       const exercise_id = workoutResponse.body[0].exercises[0].id
       const set_id = workoutResponse.body[0].exercises[0].sets[0].id
-      
-      const response = await request(app)
+
+      await request(app)
         .delete(`/workouts/${workout_id}/exercises/${exercise_id}/sets/${set_id}`)
         .expect(204)
-      // this needs fine tuning
+      
+      const updatedWorkoutResponse = await request(app).get(`/workouts/${workout_id}`);
+      const updatedExercise = updatedWorkoutResponse.body.exercises.find(
+        (exercise) => exercise.id === exercise_id
+      );
+
+      const deletedSet = updatedExercise.sets.find((set) => set.id === set_id);
+    
+      expect(deletedSet).toBeUndefined();
     })
   })
 });

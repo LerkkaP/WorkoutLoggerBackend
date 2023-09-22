@@ -116,7 +116,7 @@ const deleteSetFromExercise = async (req, res) => {
       { $pull: { "exercises.$.sets": { _id: set_id } } },
       { $new: true }
     );
-    res.status(204).json(updatedSets);
+    res.status(204).json();
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
