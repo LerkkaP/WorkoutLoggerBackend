@@ -121,7 +121,7 @@ describe("Exercises API", () => {
 
       const setObject = {
         reps: 10,
-        kg: 80
+        load: 80
       }
 
       const response = await request(app)
@@ -130,8 +130,37 @@ describe("Exercises API", () => {
         .expect(200)
       
       expect(response.body.exercises[0].sets).toHaveLength(4)
-      console.log(response.body.exercises[0].sets)
-      // hox! kg is not added!
+      expect(response.body.exercises[0].sets[3].reps).toBe(10)
+      expect(response.body.exercises[0].sets[3].kg).toBe(80)
+    })
+  })
+
+  describe("DELETE /:workout_id/exercises/:exercise_id", () => {
+    test("should delete an exercise from a workout", async () => {
+
+      const workoutResponse = await request(app).get("/workouts");
+      const workout_id = workoutResponse.body[0].id
+      const exercise_id = workoutResponse.body[0].exercises[0].id
+
+      const response = await request(app)
+        .delete(`/workouts/${workout_id}/exercises/${exercise_id}`)
+        .expect(204)
+      expect(response.body).toStrictEqual({})
+    })
+  })
+
+  describe("DELETE /:workout_id/exercises/:exercise_id/sets/:set_id", () => {
+    test("should delete a set from an exercise", async () => {
+
+      const workoutResponse = await request(app).get("/workouts");
+      const workout_id = workoutResponse.body[0].id
+      const exercise_id = workoutResponse.body[0].exercises[0].id
+      const set_id = workoutResponse.body[0].exercises[0].sets[0].id
+      
+      const response = await request(app)
+        .delete(`/workouts/${workout_id}/exercises/${exercise_id}/sets/${set_id}`)
+        .expect(204)
+      // this needs fine tuning
     })
   })
 });
