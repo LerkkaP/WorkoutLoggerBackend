@@ -1,13 +1,23 @@
 const mongoose = require("mongoose");
 
 const workoutSchema = new mongoose.Schema({
-  date: String,
+  date: {
+    type: String,
+    required: true
+  },
   exercises: [
     {
-      name: String,
+      name: {
+        type: String,
+        required: true
+      },
       sets: [
         {
-          reps: Number,
+          reps: {
+            type: Number,
+            min: 0,
+            required: true
+          },
           kg: Number,
         },
       ],
