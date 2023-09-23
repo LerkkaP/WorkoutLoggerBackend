@@ -39,7 +39,6 @@ describe("Workouts API", () => {
 
       expect(response.body.date).toBe("28/8/2023")
       expect(response.body.id).toBe(id)
-
     })
   })
 
@@ -159,29 +158,34 @@ describe("Exercises API", () => {
       })
     })
 
-  describe("case with an only one exercise", () => {
-    test("should delete the whole workout", async () => {
-      const workoutResponse = await request(app).get("/workouts");
+    describe("case with an only one exercise", () => {
+      test("should delete the whole workout", async () => {
+        const workoutResponse = await request(app).get("/workouts");
 
-      const workout_id_1 = workoutResponse.body[0].id
-      const exercise_id_1 = workoutResponse.body[0].exercises[0].id
+        const workout_id = workoutResponse.body[0].id;
+        const exercise1_id = workoutResponse.body[0].exercises[0].id;
+        const exercise2_id = workoutResponse.body[0].exercises[1].id;
+        const exercise3_id = workoutResponse.body[0].exercises[2].id;
+    
+        await request(app)
+        .delete(`/workouts/${workout_id}/exercises/${exercise1_id}`)
+        .expect(204);
 
-      const workout_id_2 = workoutResponse.body[1].id
-      const exercise_id_2 = workoutResponse.body[1].exercises[1].id
+        await request(app)
+          .delete(`/workouts/${workout_id}/exercises/${exercise2_id}`)
+          .expect(204);
 
-      await request(app)
-        .delete(`/workouts/${workout_id_1}/exercises/${exercise_id_1}`)
-        .expect(204)
-
-      await request(app)
-        .delete(`/workouts/${workout_id_2}/exercises/${exercise_id_2}`)
-        .expect(204)
-
-      const updatedWorkoutResponse = await request(app).get(`/workouts/${workout_id}`);
-      // fine tuning
+        await request(app)
+          .delete(`/workouts/${workout_id}/exercises/${exercise3_id}`)
+          .expect(204);
       
+        const updatedWorkoutResponse = await request(app).get(`/workouts`);
+        const deletedWorkout = updatedWorkoutResponse.body.find((w) => w.id == workout_id)
+
+        expect(updatedWorkoutResponse.body.length).toBe(1)
+        expect(deletedWorkout).toBeUndefined()        
+      })
     })
-  })
   })
 
   describe("DELETE /:workout_id/exercises/:exercise_id/sets/:set_id", () => {
