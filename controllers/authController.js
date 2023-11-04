@@ -1,5 +1,7 @@
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
+const { validatePassword } = require("../utils/passwordUtils");
+
 const saltRounds = 10;
 
 const signUp = async (req, res) => {
@@ -8,11 +10,15 @@ const signUp = async (req, res) => {
   const existingUser = await User.findOne({ username });
 
   if (existingUser) {
-    return res.status(400).json({ message: "Username already exists" });
+    return res.status(400).json({
+      message: "Username is already taken",
+    });
   }
 
-  if (password1 !== password2) {
-    return res.status(400).json({ message: "Passwords do not match." });
+  const passwordValidationResult = validatePassword(password1, password2);
+
+  if (passwordValidationResult) {
+    return res.status(400).json({ message: passwordValidationResult });
   }
 
   try {
