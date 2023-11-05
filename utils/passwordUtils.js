@@ -4,11 +4,9 @@ const passwordRegex = new RegExp(
 
 const validatePassword = (password1, password2) => {
   if (password1 !== password2) {
-    return "Passwords do not match.";
-  }
-
-  if (!passwordRegex.test(password1)) {
-    return "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one digit and one special character.";
+    return "Passwords don't match";
+  } else if (!passwordRegex.test(password1)) {
+    return "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one digit and one special character";
   }
 
   return null;

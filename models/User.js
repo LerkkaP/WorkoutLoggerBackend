@@ -19,6 +19,15 @@ const userSchema = new mongoose.Schema({
   },
 });
 
+userSchema.methods.toJSON = function () {
+  const user = this.toObject();
+  user.id = user._id.toString();
+  delete user._id;
+  delete user.__v;
+
+  return user;
+};
+
 userSchema.methods.comparePassword = function (password) {
   return bcrypt.compareSync(password, this.hash_password);
 };
