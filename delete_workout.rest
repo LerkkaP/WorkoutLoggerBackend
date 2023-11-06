@@ -1,0 +1,1 @@
+DELETE http://localhost:3001/workouts/654941822f491f7d8e014c27

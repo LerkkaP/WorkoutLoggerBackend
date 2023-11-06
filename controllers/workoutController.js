@@ -1,4 +1,5 @@
 //const workouts = require("../data");//
+const User = require("../models/User");
 const Workout = require("../models/Workout");
 
 // get all workouts
@@ -22,10 +23,18 @@ const getWorkoutById = async (req, res) => {
 const createWorkout = async (req, res) => {
   const workout = req.body;
 
-  const newWorkout = new Workout(workout);
+  const user = await User.findById(workout.userId);
+  const newWorkout = new Workout({
+    date: workout.date,
+    user: user._id,
+    exercises: workout.exercises,
+  });
 
   try {
     const savedWorkout = await newWorkout.save();
+    user.workouts = user.workouts.concat(savedWorkout._id);
+    await user.save();
+
     res.status(201).json(savedWorkout);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -36,6 +45,21 @@ const createWorkout = async (req, res) => {
 const deleteWorkout = async (req, res) => {
   try {
     const id = req.params.id;
+
+    const workout = await Workout.findById(id);
+
+    if (!workout) {
+      return res.status(404).json({ error: "Workout not found" });
+    }
+
+    const user = await User.findById(workout.user);
+
+    if (user) {
+      user.workouts = user.workouts.filter(
+        (workoutId) => workoutId.toString() !== id
+      );
+      await user.save();
+    }
     await Workout.deleteOne({
       _id: id,
     });

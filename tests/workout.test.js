@@ -31,16 +31,14 @@ describe("Workouts API", () => {
   describe("GET /:id", () => {
     test("should return a specific workout", async () => {
       const workoutResponse = await request(app).get("/workouts");
-      const id = workoutResponse.body[0].id
+      const id = workoutResponse.body[0].id;
 
-      const response = await request(app)
-        .get(`/workouts/${id}`)
-        .expect(200)
+      const response = await request(app).get(`/workouts/${id}`).expect(200);
 
-      expect(response.body.date).toBe("28/8/2023")
-      expect(response.body.id).toBe(id)
-    })
-  })
+      expect(response.body.date).toBe("28/8/2023");
+      expect(response.body.id).toBe(id);
+    });
+  });
 
   describe("POST /", () => {
     test("should create a workout", async () => {
@@ -115,61 +113,61 @@ describe("Exercises API", () => {
   describe("PUT /:workout_id/exercises/:exercise_id/sets", () => {
     test("should add a set to a specific exercise", async () => {
       const workoutResponse = await request(app).get("/workouts");
-      const workout_id = workoutResponse.body[0].id
-      const exercise_id = workoutResponse.body[0].exercises[0].id
+      const workout_id = workoutResponse.body[0].id;
+      const exercise_id = workoutResponse.body[0].exercises[0].id;
 
       const setObject = {
         reps: 10,
-        load: 80
-      }
+        load: 80,
+      };
 
       const response = await request(app)
         .put(`/workouts/${workout_id}/exercises/${exercise_id}/sets`)
         .send(setObject)
-        .expect(200)
-      
-      expect(response.body.exercises[0].sets).toHaveLength(4)
-      expect(response.body.exercises[0].sets[3].reps).toBe(10)
-      expect(response.body.exercises[0].sets[3].kg).toBe(80)
-    })
-  })
+        .expect(200);
+
+      expect(response.body.exercises[0].sets).toHaveLength(4);
+      expect(response.body.exercises[0].sets[3].reps).toBe(10);
+      expect(response.body.exercises[0].sets[3].kg).toBe(80);
+    });
+  });
 
   describe("DELETE /:workout_id/exercises/:exercise_id", () => {
     describe("case with multiple exercises", () => {
       test("should delete an exercise from a workout", async () => {
-
         const workoutResponse = await request(app).get("/workouts");
-        const workout_id = workoutResponse.body[0].id
-        const exercise_id = workoutResponse.body[0].exercises[0].id
-  
+        const workout_id = workoutResponse.body[0].id;
+        const exercise_id = workoutResponse.body[0].exercises[0].id;
+
         await request(app)
           .delete(`/workouts/${workout_id}/exercises/${exercise_id}`)
-          .expect(204)
+          .expect(204);
 
-        const updatedWorkoutResponse = await request(app)
-          .get(`/workouts/${workout_id}`)
+        const updatedWorkoutResponse = await request(app).get(
+          `/workouts/${workout_id}`
+        );
 
         const updatedWorkout = updatedWorkoutResponse.body.exercises.find(
           (exercise) => exercise.id === exercise_id
         );
-          
+
         expect(updatedWorkout).toBeUndefined();
-        expect(updatedWorkoutResponse.body.exercises.length).toBe(2)
-      })
-    })
+        expect(updatedWorkoutResponse.body.exercises.length).toBe(2);
+      });
+    });
 
     describe("case with an only one exercise", () => {
-      test("should delete the whole workout", async () => {
+      test("should delete the entire workout", async () => {
         const workoutResponse = await request(app).get("/workouts");
 
         const workout_id = workoutResponse.body[0].id;
         const exercise1_id = workoutResponse.body[0].exercises[0].id;
         const exercise2_id = workoutResponse.body[0].exercises[1].id;
         const exercise3_id = workoutResponse.body[0].exercises[2].id;
-    
+
         await request(app)
-        .delete(`/workouts/${workout_id}/exercises/${exercise1_id}`)
-        .expect(204);
+          .delete(`/workouts/${workout_id}/exercises/${exercise1_id}`)
+          .expect(204);
 
         await request(app)
           .delete(`/workouts/${workout_id}/exercises/${exercise2_id}`)
@@ -178,38 +176,43 @@ describe("Exercises API", () => {
         await request(app)
           .delete(`/workouts/${workout_id}/exercises/${exercise3_id}`)
           .expect(204);
-      
-        const updatedWorkoutResponse = await request(app).get(`/workouts`);
-        const deletedWorkout = updatedWorkoutResponse.body.find((w) => w.id == workout_id)
 
-        expect(updatedWorkoutResponse.body.length).toBe(1)
-        expect(deletedWorkout).toBeUndefined()        
-      })
-    })
-  })
+        const updatedWorkoutResponse = await request(app).get(`/workouts`);
+        const deletedWorkout = updatedWorkoutResponse.body.find(
+          (w) => w.id == workout_id
+        );
+
+        expect(updatedWorkoutResponse.body.length).toBe(1);
+        expect(deletedWorkout).toBeUndefined();
+      });
+    });
+  });
 
   describe("DELETE /:workout_id/exercises/:exercise_id/sets/:set_id", () => {
     test("should delete a set from an exercise", async () => {
-
       const workoutResponse = await request(app).get("/workouts");
-      const workout_id = workoutResponse.body[0].id
-      const exercise_id = workoutResponse.body[0].exercises[0].id
-      const set_id = workoutResponse.body[0].exercises[0].sets[0].id
+      const workout_id = workoutResponse.body[0].id;
+      const exercise_id = workoutResponse.body[0].exercises[0].id;
+      const set_id = workoutResponse.body[0].exercises[0].sets[0].id;
 
       await request(app)
-        .delete(`/workouts/${workout_id}/exercises/${exercise_id}/sets/${set_id}`)
-        .expect(204)
-      
-      const updatedWorkoutResponse = await request(app).get(`/workouts/${workout_id}`);
+        .delete(
+          `/workouts/${workout_id}/exercises/${exercise_id}/sets/${set_id}`
+        )
+        .expect(204);
+
+      const updatedWorkoutResponse = await request(app).get(
+        `/workouts/${workout_id}`
+      );
       const updatedExercise = updatedWorkoutResponse.body.exercises.find(
         (exercise) => exercise.id === exercise_id
       );
 
       const deletedSet = updatedExercise.sets.find((set) => set.id === set_id);
-    
+
       expect(deletedSet).toBeUndefined();
-    })
-  })
+    });
+  });
 });
 
 afterAll(async () => {

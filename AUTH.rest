@@ -4,7 +4,7 @@ Content-Type: application/json
 
 {
 "username": "test_user",
-"hash_password": "testi",
+"hash_password": "Adminpassword23!",
 "created": "2023-11-05T16:27:43.445Z",
 "id": "6547c27fd26bcde02bd58ff9"
 }

@@ -3,20 +3,24 @@ const mongoose = require("mongoose");
 const workoutSchema = new mongoose.Schema({
   date: {
     type: String,
-    required: true
+    required: true,
+  },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
   },
   exercises: [
     {
       name: {
         type: String,
-        required: true
+        required: true,
       },
       sets: [
         {
           reps: {
             type: Number,
             min: 0,
-            required: true
+            required: true,
           },
           kg: Number,
         },

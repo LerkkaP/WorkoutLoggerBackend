@@ -1,0 +1,61 @@
+POST http://localhost:3001/workouts
+Content-Type: application/json
+
+{
+  "date": "28/8/2023",
+  "userId": "6549416b2f491f7d8e014c22",
+  "exercises": [
+    {
+      "name": "Barbell Row",
+      "sets": [
+        {
+          "reps": 5,
+          "kg": 52.5
+        },
+        {
+          "reps": 5,
+          "kg": 52.5
+        },
+        {
+          "reps": 6,
+          "kg": 52.5
+        }
+      ]
+    },
+    {
+      "name": "Squat",
+      "sets": [
+        {
+          "reps": 5,
+          "kg": 58.75
+        },
+        {
+          "reps": 5,
+          "kg": 58.75
+        },
+        {
+          "reps": 7,
+          "kg": 58.75
+        }
+      ]
+    },
+    {
+      "name": "Bench Press",
+      "sets": [
+        {
+          "reps": 5,
+          "kg": 73.5
+        },
+        {
+          "reps": 5,
+          "kg": 73.5
+        },
+        {
+          "reps": 6,
+          "kg": 73.5
+        }
+      ]
+    }
+  ]
+}
+
