@@ -1,6 +1,7 @@
 let workouts = [
   {
     date: "28/8/2023",
+    userId: "6549416b2f491f7d8e014c22",
     exercises: [
       {
         name: "Barbell Row",
@@ -57,6 +58,7 @@ let workouts = [
   },
   {
     date: "30/8/2023",
+    userId: "6549416b2f491f7d8e014c22",
     exercises: [
       {
         name: "Overhead Press",

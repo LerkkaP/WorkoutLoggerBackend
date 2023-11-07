@@ -2,7 +2,13 @@ const mongoose = require("mongoose");
 const request = require("supertest");
 const app = require("../app");
 const Workout = require("../models/Workout");
+const User = require("../models/User");
 const workouts = require("../data");
+
+const newUser = {
+  username: "admin",
+  hash_password: "Adminpassword23!",
+};
 
 beforeEach(async () => {
   await Workout.deleteMany({});
@@ -10,6 +16,10 @@ beforeEach(async () => {
   await workoutObject.save();
   workoutObject = new Workout(workouts[1]);
   await workoutObject.save();
+
+  await User.deleteMany({});
+  let userObject = new User(newUser);
+  await userObject.save();
 });
 
 describe("Workouts API", () => {
@@ -42,10 +52,14 @@ describe("Workouts API", () => {
 
   describe("POST /", () => {
     test("should create a workout", async () => {
+      const user = await request(app).get("/auth");
+      const userId = user.body.map((user) => user.id);
+
       const res = await request(app)
         .post("/workouts")
         .send({
           date: "18/9/2023",
+          userId: userId[0],
           exercises: [{ name: "Weighted lunge", sets: [{ reps: 30, kg: 20 }] }],
         });
       expect(res.statusCode).toBe(201);
@@ -60,10 +74,14 @@ describe("Workouts API", () => {
 
   describe("DELETE /:id", () => {
     test("should delete a specific workout", async () => {
+      const user = await request(app).get("/auth");
+      const userId = user.body.map((user) => user.id);
+
       const newWorkout = await request(app)
         .post("/workouts")
         .send({
           date: "18/9/2023",
+          userId: userId[0],
           exercises: [{ name: "Weighted lunge", sets: [{ reps: 30, kg: 20 }] }],
         });
 
@@ -80,8 +98,12 @@ describe("Workouts API", () => {
 describe("Exercises API", () => {
   describe("POST /:id/exercises", () => {
     test("should add an exercise to a workout", async () => {
+      const user = await request(app).get("/auth");
+      const userId = user.body.map((user) => user.id);
+
       const workoutRes = await request(app).post("/workouts").send({
         date: "18/9/2023",
+        userId: userId[0],
         exercises: [],
       });
       const workoutId = workoutRes.body.id;
