@@ -52,7 +52,7 @@ const deleteWorkout = async (req, res) => {
       return res.status(404).json({ error: "Workout not found" });
     }
 
-    const user = await User.findById(workout.user);
+    const user = workout.user;
 
     if (user) {
       user.workouts = user.workouts.filter(
@@ -73,7 +73,19 @@ const deleteWorkout = async (req, res) => {
 const addExerciseToWorkout = async (req, res) => {
   try {
     const id = req.params.id;
+    const user_id = req.user.id;
     const exerciseObject = req.body;
+
+    const workout = await Workout.findById(id);
+
+    if (!workout) {
+      return res.status(404).json({ error: "Workout not found" });
+    }
+
+    if (workout.user.toString() !== user_id) {
+      return res.status(403).json({ error: "Unauthorized access to workout" });
+    }
+
     const updatedWorkout = await Workout.findOneAndUpdate(
       { _id: id },
       { $push: { exercises: exerciseObject } },
@@ -90,8 +102,21 @@ const addExerciseToWorkout = async (req, res) => {
 const addSetToExercise = async (req, res) => {
   try {
     const workout_id = req.params.workout_id;
+    const user_id = req.user.id;
     const exercise_id = req.params.exercise_id;
     const { reps, load } = req.body;
+
+    const workout = await Workout.findById(workout_id);
+    if (!workout || workout.user.toString() !== user_id) {
+      return res.status(403).json({ error: "Unauthorized access to workout" });
+    }
+
+    const exercise = workout.exercises.find(
+      (ex) => ex._id.toString() === exercise_id
+    );
+    if (!exercise) {
+      return res.status(404).json({ error: "Exercise not found" });
+    }
 
     const updatedExercise = await Workout.findOneAndUpdate(
       { _id: workout_id, "exercises._id": exercise_id },
@@ -110,7 +135,21 @@ const deleteExerciseFromWorkout = async (req, res) => {
   try {
     const workout_id = req.params.workout_id;
     const exercise_id = req.params.exercise_id;
+    const user_id = req.user.id;
+
     const workout = await Workout.findById(workout_id);
+
+    if (!workout || workout.user.toString() !== user_id) {
+      return res.status(403).json({ error: "Unauthorized access to workout" });
+    }
+
+    const exercise = workout.exercises.find(
+      (ex) => ex._id.toString() === exercise_id
+    );
+    if (!exercise) {
+      return res.status(404).json({ error: "Exercise not found" });
+    }
+
     if (workout.exercises.length === 1) {
       await Workout.deleteOne({
         _id: workout_id,
@@ -135,6 +174,18 @@ const deleteSetFromExercise = async (req, res) => {
     const workout_id = req.params.workout_id;
     const exercise_id = req.params.exercise_id;
     const set_id = req.params.set_id;
+    const user_id = req.user.id;
+
+    const workout = await Workout.findOne({
+      _id: workout_id,
+      user: user_id,
+      "exercises._id": exercise_id,
+    });
+
+    if (!workout) {
+      return res.status(403).json({ error: "Unauthorized access to set" });
+    }
+
     const updatedSets = await Workout.findOneAndUpdate(
       { _id: workout_id, "exercises._id": exercise_id },
       { $pull: { "exercises.$.sets": { _id: set_id } } },
